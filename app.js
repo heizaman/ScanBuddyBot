@@ -75,11 +75,52 @@ var bot = new builder.UniversalBot(connector, [
     },
     function (session, result) {
         if (result.complaint) {
-        	session.send('Your complaint is : ' + result.complaint);
-            session.endDialog('Thank You! Your complaint has been registered.');
+        	session.send('Thank You! Your complaint has been registered.');
+            var reply = createEvent("sendComplaint", result.complaint, session.message.address);
+            session.endDialog(reply);
         }
     }
 ]);
+
+
+//Bot listening for inbound backchannel events - in this case it only listens for events named "buttonClicked"
+bot.on("event", function (event) {
+    var msg = new builder.Message().address(event.address);
+    msg.textLocale("en-us");
+    if (event.name === "pageLoaded") {
+        info = {
+            sector: event.data.sector,
+            department: event.data.department,
+            domain: event.data.domain,
+            address: event.data.address,
+            objno: event.data.objno,
+            objname: event.data.objname
+        };
+        contact = {
+            execname: event.data.execname,
+            phone: event.data.phone,
+            email: event.data.email,
+            address: event.data.address
+        };
+    }
+})
+
+//Basic root dialog which takes an inputted color and sends a changeBackground event. No NLP, regex, validation here - just grabs input and sends it back as an event. 
+bot.dialog('/', [
+    function (session) {
+        var reply = createEvent("sendComplaint", session.message.text, session.message.address);
+        session.endDialog(reply);
+    }
+]);
+
+//Creates a backchannel event
+const createEvent = (eventName, value, address) => {
+    var msg = new builder.Message().address(address);
+    msg.data.type = "event";
+    msg.data.name = eventName;
+    msg.data.value = complaint;
+    return msg;
+}
 
 
 //Sub-Dialogs
