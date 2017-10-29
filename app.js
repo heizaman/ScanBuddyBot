@@ -75,9 +75,8 @@ var bot = new builder.UniversalBot(connector, [
     },
     function (session, result) {
         if (result.complaint) {
-        	session.send('Thank You! Your complaint has been registered.');
-            var reply = createEvent("sendComplaint", result.complaint, session.message.address);
-            session.endDialog(reply);
+        	session.send('Your complaint is : ' + result.complaint);
+            session.endDialog('Thank You! Your complaint has been registered.');
         }
     }
 ]);
